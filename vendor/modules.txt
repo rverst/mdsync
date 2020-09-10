@@ -1,0 +1,68 @@
+# github.com/aymerick/douceur v0.2.0
+github.com/aymerick/douceur/css
+# github.com/chris-ramon/douceur v0.2.0
+github.com/chris-ramon/douceur/parser
+# github.com/fsnotify/fsnotify v1.4.9
+## explicit
+github.com/fsnotify/fsnotify
+# github.com/gorilla/css v1.0.0
+github.com/gorilla/css/scanner
+# github.com/gorilla/websocket v1.4.2
+## explicit
+github.com/gorilla/websocket
+# github.com/integrii/flaggy v1.4.4
+## explicit
+github.com/integrii/flaggy
+# github.com/kr/pretty v0.2.1
+## explicit
+# github.com/microcosm-cc/bluemonday v1.0.4
+## explicit
+github.com/microcosm-cc/bluemonday
+# github.com/russross/blackfriday v1.5.2
+github.com/russross/blackfriday
+# github.com/sergi/go-diff v1.1.0
+## explicit
+github.com/sergi/go-diff/diffmatchpatch
+# github.com/shurcooL/github_flavored_markdown v0.0.0-20181002035957-2122de532470
+## explicit
+github.com/shurcooL/github_flavored_markdown
+# github.com/shurcooL/go v0.0.0-20200502201357-93f07166e636
+## explicit
+# github.com/shurcooL/go-goon v0.0.0-20170922171312-37c2f522c041
+## explicit
+# github.com/shurcooL/highlight_diff v0.0.0-20181222201841-111da2e7d480
+## explicit
+github.com/shurcooL/highlight_diff
+# github.com/shurcooL/highlight_go v0.0.0-20191220051317-782971ddf21b
+## explicit
+github.com/shurcooL/highlight_go
+# github.com/shurcooL/octicon v0.0.0-20191102190552-cbb32d6a785c
+## explicit
+github.com/shurcooL/octicon
+# github.com/shurcooL/sanitized_anchor_name v1.0.0
+## explicit
+github.com/shurcooL/sanitized_anchor_name
+# github.com/sourcegraph/annotate v0.0.0-20160123013949-f4cad6c6324d
+## explicit
+github.com/sourcegraph/annotate
+# github.com/sourcegraph/syntaxhighlight v0.0.0-20170531221838-bd320f5d308e
+## explicit
+github.com/sourcegraph/syntaxhighlight
+# github.com/tdewolff/minify/v2 v2.9.4
+## explicit
+github.com/tdewolff/minify/v2
+github.com/tdewolff/minify/v2/css
+github.com/tdewolff/minify/v2/js
+# github.com/tdewolff/parse/v2 v2.5.2
+github.com/tdewolff/parse/v2
+github.com/tdewolff/parse/v2/buffer
+github.com/tdewolff/parse/v2/css
+github.com/tdewolff/parse/v2/js
+github.com/tdewolff/parse/v2/strconv
+# golang.org/x/net v0.0.0-20200904194848-62affa334b73
+## explicit
+golang.org/x/net/html
+golang.org/x/net/html/atom
+# golang.org/x/sys v0.0.0-20200724161237-0e2f3a69832c
+golang.org/x/sys/internal/unsafeheader
+golang.org/x/sys/unix
