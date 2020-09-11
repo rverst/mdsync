@@ -40,7 +40,7 @@ This opens the default browser on `http://localhost:5000` to display the rendere
 With no arguments provided, the first markdown file in the current directory will be loaded.  
 
 With the switches `--css` and `--script` own styles or scripts can be loaded. These will then replace
-the embedded [style.css](./embedded/style.css) or [script.js](./embedded/script.js).
+the embedded [style.css](embedded/css/custom.css) or [custom.js](embedded/scripts/custom.js).
 With the switch -raw this css can also be switched off.
 
 ## Embedded styles/scripts

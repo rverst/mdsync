@@ -3,16 +3,15 @@ package main
 import (
 	b64 "encoding/base64"
 	"fmt"
-	"github.com/tdewolff/minify/v2"
-	"github.com/tdewolff/minify/v2/css"
-	"github.com/tdewolff/minify/v2/js"
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
+	"strings"
 	"time"
 )
 
-func main()  {
+func main() {
 
 	out, err := os.Create("embedded.go")
 	if err != nil {
@@ -22,64 +21,33 @@ func main()  {
 	_, _ = out.Write([]byte(fmt.Sprintf("// generated: %s\n\n", time.Now().Format(time.RFC1123Z))))
 	_, _ = out.Write([]byte("package main\n\n"))
 	_, _ = out.Write([]byte("import \"html/template\"\n\n"))
-	_, _ = out.Write([]byte("const (\n"))
 
-	m := minify.New()
-	m.AddFunc("text/css", css.Minify)
-	m.AddFunc("text/javascript", js.Minify)
-
-	style, _ := ioutil.ReadFile("./embedded/gfm.css")
-	minCss, e := m.Bytes("text/css", style)
-	if e != nil {
-		fmt.Println(e)
-	}
-
-	_, _ = out.Write([]byte("gfmCss=`"))
-	_, _ = out.Write(minCss)
-	_, _ = out.Write([]byte("`\n"))
-
-	style, _ = ioutil.ReadFile("./embedded/print.css")
-	minCss, e = m.Bytes("text/css", style)
-	if e != nil {
-		fmt.Println(e)
-	}
-
-	_, _ = out.Write([]byte("printCss=`"))
-	_, _ = out.Write(minCss)
-	_, _ = out.Write([]byte("`\n"))
-
-	style, _ = ioutil.ReadFile("./embedded/style.css")
-	// save custom css as base64 to avoid problems with escaping
-	dec := b64.StdEncoding.EncodeToString(style)
-	_, _ = out.Write([]byte("customCss=`"))
-	_, _ = out.Write([]byte(dec))
-	_, _ = out.Write([]byte("`\n"))
-
-	script, _ := ioutil.ReadFile("./embedded/reload.js")
-	minJs, e := m.Bytes("text/javascript", script)
-	if e != nil {
-		fmt.Println(e)
-	}
-	_, _ = out.Write([]byte("reloadJs=`"))
-	_, _ = out.Write(minJs)
-	_, _ = out.Write([]byte("`\n"))
-
-	script, _ = ioutil.ReadFile("./embedded/script.js")
-	if e != nil {
-		fmt.Println(e)
-	}
-	// save custom script as base64 to avoid problems with escaping
-	dec = b64.StdEncoding.EncodeToString(script)
-	_, _ = out.Write([]byte("customJs=`"))
-	_, _ = out.Write([]byte(dec))
-	_, _ = out.Write([]byte("`\n"))
-
-	_, _ = out.Write([]byte(")\n"))
-
-	_, _ = out.Write([]byte("\n"))
+	// html template
 	html, _ := ioutil.ReadFile("./embedded/template.html")
 	_, _ = out.Write([]byte("var htmlTemplate = template.Must(template.New(\"tmp\").Parse(`\n"))
 	_, _ = out.Write(html)
-	_, _ = out.Write([]byte("`))\n"))
+	_, _ = out.Write([]byte("`))\n\n"))
 
+	dirs := []string{"css", "script", "font"}
+
+	_, _ = out.Write([]byte("var assets = map[string]string {\n"))
+
+	for _, d := range dirs {
+		_ = filepath.Walk(fmt.Sprintf("./embedded/%s", d), func(path string, info os.FileInfo, err error) error {
+			if info.IsDir() {
+				return nil
+			}
+			data, err := ioutil.ReadFile(path)
+			if err != nil {
+				return err
+			}
+			vName := fmt.Sprintf("%s_%s", d, strings.Replace(filepath.Base(path), ".", "_", 1))
+			enc := b64.StdEncoding.EncodeToString(data)
+			_, _ = out.Write([]byte(fmt.Sprintf(" `%s`: `", vName)))
+			_, _ = out.Write([]byte(enc))
+			_, _ = out.Write([]byte("`,\n"))
+			return nil
+		})
+	}
+	_, _ = out.Write([]byte("}\n\n"))
 }
