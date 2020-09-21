@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -36,11 +37,9 @@ type Connections struct {
 }
 
 type Content struct {
-	Title    string
-	GfmCss   template.CSS
-	PrintCss template.CSS
-	ReloadJs template.JS
-	Content  template.HTML
+	Title   string
+	Raw     bool
+	Content template.HTML
 }
 
 var (
@@ -104,6 +103,9 @@ func main() {
 	go watchFileSystem()
 	url := fmt.Sprintf("http://localhost:%d", port)
 	fmt.Printf("listening at: %s\n", url)
+	http.HandleFunc("/css/", handleAssetRequest)
+	http.HandleFunc("/font/", handleAssetRequest)
+	http.HandleFunc("/script/", handleAssetRequest)
 	http.HandleFunc("/", handleRequest)
 	if !noBrowser {
 		openBrowser(url)
@@ -121,41 +123,6 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if r.URL.Path == "/custom.js" {
-		var js []byte
-		if jsFile == "" && !raw {
-			js, _ = b64.StdEncoding.DecodeString(customJs)
-		} else {
-			js, _ = ioutil.ReadFile(jsFile)
-		}
-
-		if len(js) == 0 {
-			w.WriteHeader(http.StatusNoContent)
-			return
-		}
-
-		w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
-		_, _ = w.Write(js)
-		return
-	}
-
-	if r.URL.Path == "/custom.css" {
-		var css []byte
-		if cssFile == "" && !raw {
-			css, _ = b64.StdEncoding.DecodeString(customCss)
-		} else {
-			css, _ = ioutil.ReadFile(jsFile)
-		}
-
-		if len(css) == 0 {
-			w.WriteHeader(http.StatusNoContent)
-			return
-		}
-
-		w.Header().Set("Content-Type", "text/css; charset=utf-8")
-		_, _ = w.Write(css)
-		return
-	}
 	if r.URL.Path == "/ws" {
 		err := handleWebSocket(w, r)
 		if err != nil {
@@ -168,12 +135,8 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 
 		w.Header().Set("Content-Type", "text/html")
 		content := Content{
-			Title:    filepath.Base(mdFile),
-			ReloadJs: reloadJs,
-		}
-		if !raw {
-			content.GfmCss = gfmCss
-			content.PrintCss = printCss
+			Title: filepath.Base(mdFile),
+			Raw:   raw,
 		}
 		md, err := ioutil.ReadFile(mdFile)
 		if err != nil {
@@ -190,6 +153,43 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusNotFound)
+}
+
+func handleAssetRequest(w http.ResponseWriter, r *http.Request) {
+
+	key := strings.Replace(r.URL.Path, "/", "_", -1)
+	key = strings.Replace(key, ".", "_", -1)
+	key = key[1:]
+
+	ct := ""
+	switch path.Ext(r.URL.Path) {
+	case ".css":
+		ct = "text/css; charset=utf-8"
+	case ".js":
+		ct = "application/javascript; charset=utf-8"
+	case ".ttf":
+		ct = "application/x-font-truetype"
+	case ".woff":
+		ct = "application/font-woff"
+	case ".woff2":
+		ct = "application/font-woff2"
+	}
+
+	data, ok := assets[key]
+	if !ok {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	dec, err := b64.StdEncoding.DecodeString(data)
+	if err != nil {
+		fmt.Printf("handleAsset error: %v\n", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", ct)
+	_, _ = w.Write(dec)
 }
 
 func handleWebSocket(w http.ResponseWriter, r *http.Request) error {
@@ -287,7 +287,7 @@ func openBrowser(url string) {
 func watchFileSystem() {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-    fmt.Printf("error: %v\n", err)
+		fmt.Printf("error: %v\n", err)
 		return
 	}
 	defer watcher.Close()

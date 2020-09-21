@@ -1,0 +1,37 @@
+/* Page breaks for printing */
+
+hr {
+    break-after: page;
+    height: 0.1mm;
+    visibility: hidden;
+}
+
+h1 {
+    break-before: recto;
+}
+
+h1:first-of-type,
+section > h1:first-child {
+    break-before: avoid;
+}
+
+h2 {
+    break-before: column;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+}
+
+h1 + h2, h2 + h3, h3 + h4, h4 + h5, h5 + h6 {
+    page-break-before: avoid;
+}
+
+blockquote {
+   page-break-inside: avoid;
+}
+
+pre {
+  page-break-inside: avoid;
+  background-color: #808080;
+}

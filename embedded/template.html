@@ -3,15 +3,17 @@
 <head>
     <meta charset="utf-8">
     <title>{{ .Title }}</title>
-    <style type="text/css" media="all">{{ .GfmCss }}</style>
-    <style type="text/css" media="print">{{ .PrintCss }}</style>
-    <link rel="stylesheet" href="/custom.css">
-    <script type="application/ecmascript">{{ .ReloadJs }}</script>
+    {{ if not .Raw }}
+        <link rel="stylesheet" href="/css/gfm.css" media="all">
+        <link rel="stylesheet" href="/css/print.css" media="print">
+    {{ end }}
+    <link rel="stylesheet" href="/css/custom.css" media="all">
+    <script src="/script/reload.js"></script>
 </head>
 <body>
 <article class="markdown-body entry-content">
     {{ .Content }}
 </article>
-<script src="/custom.js"></script>
+<script src="/script/custom.js"></script>
 </body>
 </html>
