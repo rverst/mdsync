@@ -2,19 +2,21 @@
 
 This tool is a simple markdown renderer with live reload. As default
 github-flavoured markdown including code highlighting is rendered. Page breaks
-(`<hr>`) are inserted by css to produce nicer print results (print page as PDF).  
+(`<hr>`) are inserted by css to produce nicer print results (print page as PDF).
 
 CSS and scripts for styling and code-highlighting can be extended or replaced by
-your own. The inspiration for this project comes from 
-[browsersync](https://github.com/schollz/browsersync).  
+your own. The inspiration for this project comes from
+[browsersync](https://github.com/schollz/browsersync).
 
 ## Installation
 
-> ToDo: add installation description
+```shell
+> go get -u github.com/rverst/mdsync
+```
 
 ## Usage
 
-```none
+```shell
 > mdsync examlpe.md
 ```
 This opens the default browser on `http://localhost:5000` to display the rendered output.
@@ -37,7 +39,7 @@ This opens the default browser on `http://localhost:5000` to display the rendere
                       work though.
 ```
 
-With no arguments provided, the first markdown file in the current directory will be loaded.  
+With no arguments provided, the first markdown file in the current directory will be loaded.
 
 With the switches `--css` and `--script` own styles or scripts can be loaded. These will then replace
 the embedded [style.css](embedded/css/custom.css) or [custom.js](embedded/scripts/custom.js).
