@@ -7,9 +7,12 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
+  "regexp"
+  "strings"
 	"time"
 )
+
+var rxPath = regexp.MustCompile(``)
 
 func main() {
 
@@ -28,12 +31,10 @@ func main() {
 	_, _ = out.Write(html)
 	_, _ = out.Write([]byte("`))\n\n"))
 
-	dirs := []string{"css", "script", "font"}
 
 	_, _ = out.Write([]byte("var assets = map[string]string {\n"))
 
-	for _, d := range dirs {
-		_ = filepath.Walk(fmt.Sprintf("./embedded/%s", d), func(path string, info os.FileInfo, err error) error {
+		_ = filepath.Walk("./embedded/www", func(path string, info os.FileInfo, err error) error {
 			if info.IsDir() {
 				return nil
 			}
@@ -41,13 +42,24 @@ func main() {
 			if err != nil {
 				return err
 			}
-			vName := fmt.Sprintf("%s_%s", d, strings.Replace(filepath.Base(path), ".", "_", 1))
+			dir, file := filepath.Split(path)
+			dirs := strings.Split(dir, string(filepath.Separator))
+			for i := len(dirs) -1; i > 0; i-- {
+			  if dirs[i] != "" {
+			    dir = dirs[i]
+			    break
+        }
+      }
+
+      vName := strings.Replace(file, ".", "_", 1)
+			if dir != "www" {
+        vName = fmt.Sprintf("%s_%s", dir, vName)
+      }
 			enc := b64.StdEncoding.EncodeToString(data)
 			_, _ = out.Write([]byte(fmt.Sprintf(" `%s`: `", vName)))
 			_, _ = out.Write([]byte(enc))
 			_, _ = out.Write([]byte("`,\n"))
 			return nil
 		})
-	}
 	_, _ = out.Write([]byte("}\n\n"))
 }

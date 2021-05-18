@@ -1,19 +1,71 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="theme-light">
 <head>
-    <meta charset="utf-8">
-    <title>{{ .Title }}</title>
+  <meta charset="utf-8">
+  <link rel="icon" href="/image/favicon.svg">
+  <link rel="mask-icon" href="/image/favicon.svg" color="#d65d0e">
+  <link rel="alternate icon" href="favicon.ico">
+  <title>{{ .Title }}</title>
     {{ if not .Raw }}
         <link rel="stylesheet" href="/css/gfm.css" media="all">
         <link rel="stylesheet" href="/css/print.css" media="print">
+        <link rel="stylesheet" href="/css/font.css" media="all">
+        <link rel="stylesheet" href="/css/style.css" media="all">
     {{ end }}
-    <link rel="stylesheet" href="/css/custom.css" media="all">
+    {{ if .CustomCss }}
+      <link rel="stylesheet" href="{{- .CustomCss -}}" media="all">
+    {{ end }}
     <script src="/script/reload.js"></script>
 </head>
 <body>
+{{ if not .Raw }}
+  <div id="switch" class="theme-switch">
+    <label id="switch" class="switch">
+      <input type="checkbox" onchange="toggleTheme()" id="slider">
+      <span class="slider round"></span>
+    </label>
+  </div>
+{{ end }}
 <article class="markdown-body entry-content">
     {{ .Content }}
 </article>
-<script src="/script/custom.js"></script>
+    {{ if not .Raw }}
+        <script src="/script/highlight.js"></script>
+        <script>
+        'use strict';
+        const init = () => {
+            document.querySelectorAll('pre').forEach((block) => {
+                if (!(block.parentElement.classList.contains('highlight-plain')
+                    || block.parentElement.classList.contains('highlight-none')
+                    || (block.parentElement.classList.contains('highlight-text')))) {
+                    hljs.highlightBlock(block);
+                }
+            });
+        }
+
+        const setTheme = (theme) => {
+          localStorage.setItem('theme', theme);
+          document.documentElement.className = 'theme-'+theme
+        }
+
+        const toggleTheme = () => {
+          if (localStorage.getItem('theme') === 'dark') {
+            setTheme('light');
+          } else {
+            setTheme('dark');
+          }
+        }
+
+        document.addEventListener("DOMContentLoaded", init);
+        console.info('mdsync v{{ .AppVersion }}');
+        let isDark = localStorage.getItem('theme') === 'dark';
+        setTheme(isDark ? 'dark' : 'light');
+        document.getElementById('slider').checked = !isDark;
+
+        </script>
+    {{ end }}
+    {{ if .CustomScript }}
+      <script src="{{- .CustomScript -}}"></script>
+    {{ end }}
 </body>
 </html>
