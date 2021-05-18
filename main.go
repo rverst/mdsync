@@ -1,19 +1,16 @@
 package main
 
 import (
-	b64 "encoding/base64"
 	"fmt"
 	"github.com/fsnotify/fsnotify"
 	"github.com/gorilla/websocket"
 	"github.com/integrii/flaggy"
-	"github.com/shurcooL/github_flavored_markdown"
 	"html/template"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"os/exec"
-	"path"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -37,9 +34,12 @@ type Connections struct {
 }
 
 type Content struct {
-	Title   string
-	Raw     bool
-	Content template.HTML
+	AppVersion   string
+	Title        string
+	Raw          bool
+	Content      template.HTML
+	CustomCss    string
+	CustomScript string
 }
 
 var (
@@ -52,7 +52,7 @@ var (
 	cssFile       string
 	jsFile        string
 	wsConnections Connections
-	upgrader      = websocket.Upgrader{
+	upg           = websocket.Upgrader{
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
 		CheckOrigin: func(r *http.Request) bool {
@@ -106,6 +106,7 @@ func main() {
 	http.HandleFunc("/css/", handleAssetRequest)
 	http.HandleFunc("/font/", handleAssetRequest)
 	http.HandleFunc("/script/", handleAssetRequest)
+	http.HandleFunc("/image/", handleAssetRequest)
 	http.HandleFunc("/", handleRequest)
 	if !noBrowser {
 		openBrowser(url)
@@ -114,111 +115,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-
-func handleRequest(w http.ResponseWriter, r *http.Request) {
-
-	if r.URL.Path == "/robots.txt" {
-		_, _ = w.Write([]byte("User-agent: *\nDisallow: /"))
-		return
-	}
-
-	if r.URL.Path == "/ws" {
-		err := handleWebSocket(w, r)
-		if err != nil {
-			fmt.Printf("error handling ws: %v\n", err)
-		}
-		return
-	}
-
-	if r.URL.Path == "/" {
-
-		w.Header().Set("Content-Type", "text/html")
-		content := Content{
-			Title: filepath.Base(mdFile),
-			Raw:   raw,
-		}
-		md, err := ioutil.ReadFile(mdFile)
-		if err != nil {
-			content.Content = template.HTML(err.Error())
-		}
-		content.Content = template.HTML(github_flavored_markdown.Markdown(md))
-
-		err = htmlTemplate.Execute(w, content)
-		if err != nil {
-			fmt.Printf("error parsing template: %v\n", err)
-		}
-
-		return
-	}
-
-	w.WriteHeader(http.StatusNotFound)
-}
-
-func handleAssetRequest(w http.ResponseWriter, r *http.Request) {
-
-	key := strings.Replace(r.URL.Path, "/", "_", -1)
-	key = strings.Replace(key, ".", "_", -1)
-	key = key[1:]
-
-	ct := ""
-	switch path.Ext(r.URL.Path) {
-	case ".css":
-		ct = "text/css; charset=utf-8"
-	case ".js":
-		ct = "application/javascript; charset=utf-8"
-	case ".ttf":
-		ct = "application/x-font-truetype"
-	case ".woff":
-		ct = "application/font-woff"
-	case ".woff2":
-		ct = "application/font-woff2"
-	}
-
-	data, ok := assets[key]
-	if !ok {
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-
-	dec, err := b64.StdEncoding.DecodeString(data)
-	if err != nil {
-		fmt.Printf("handleAsset error: %v\n", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", ct)
-	_, _ = w.Write(dec)
-}
-
-func handleWebSocket(w http.ResponseWriter, r *http.Request) error {
-	c, errUpgrade := upgrader.Upgrade(w, r, nil)
-	if errUpgrade != nil {
-		return errUpgrade
-	}
-	defer c.Close()
-
-	wsConnections.Lock()
-	if len(wsConnections.cs) == 0 {
-		wsConnections.cs = make(map[string]*websocket.Conn)
-	}
-	wsConnections.cs[c.RemoteAddr().String()] = c
-	wsConnections.Unlock()
-	defer func() {
-		wsConnections.Lock()
-		delete(wsConnections.cs, c.RemoteAddr().String())
-		wsConnections.Unlock()
-	}()
-
-	var p Payload
-	for {
-		err := c.ReadJSON(&p)
-		if err != nil {
-			break
-		}
-	}
-	return nil
 }
 
 func loadFile(path string) (string, error) {
@@ -256,8 +152,13 @@ func loadFile(path string) (string, error) {
 }
 
 func loadAsset(path string) string {
+  if path == "" {
+    return ""
+  }
+
 	f, err := os.Stat(path)
 	if os.IsNotExist(err) || f.IsDir() {
+	  fmt.Printf("file not found: %s\n", path)
 		return ""
 	}
 	fn, err := filepath.Abs(path)

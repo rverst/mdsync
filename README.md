@@ -1,12 +1,14 @@
 # mdsync
 
-This tool is a simple markdown renderer with live reload. As default
-github-flavoured markdown including code highlighting is rendered. Page breaks
-(`<hr>`) are inserted by css to produce nicer print results (print page as PDF).
+`mdsync` is like [browsersync](https://github.com/schollz/browsersync), but for markdown.
+It renders Markdown to HTML and reloads the browser when changes are made.
+Batteries included:
+  - Embedded fonts ([Iosevka](https://github.com/be5invis/Iosevka))
+  - Embedded style (gruvbox like; dark/light)
 
-CSS and scripts for styling and code-highlighting can be extended or replaced by
-your own. The inspiration for this project comes from
-[browsersync](https://github.com/schollz/browsersync).
+![image alt <](./docs/dark_light.png)
+
+CSS and scripts for styling and code-highlighting can be extended or replaced. 
 
 ## Installation
 
@@ -21,7 +23,7 @@ your own. The inspiration for this project comes from
 ```
 This opens the default browser on `http://localhost:5000` to display the rendered output.
 
-```text
+```shell
   Usage:
     markdown sync [path]
 
@@ -41,8 +43,6 @@ This opens the default browser on `http://localhost:5000` to display the rendere
 
 With no arguments provided, the first markdown file in the current directory will be loaded.
 
-With the switches `--css` and `--script` own styles or scripts can be loaded. These will then replace
-the embedded [style.css](embedded/css/custom.css) or [custom.js](embedded/scripts/custom.js).
-With the switch -raw this css can also be switched off.
-
-## Embedded styles/scripts
+With `--css` and `--script` custom styles or scripts can be loaded. These will be loaded
+after the embedded [style.css](embedded/www/css/style.css) or [highlight.js](embedded/www/script/highlight.js).
+With the switch -raw the embedded styles and scripts can be switched off (except for the reload-script).
