@@ -43,7 +43,10 @@ type Content struct {
 }
 
 var (
-	version   = "unknown"
+	version   = "dev"
+  commit    = "none"
+  date      = "unknown"
+  builtBy   = "unknown"
 	port      = uint16(5000)
 	noBrowser = false
 	raw       = false
@@ -65,9 +68,9 @@ func init() {
 
 	var path, style, script string
 
-	flaggy.SetName("markdown sync")
+	flaggy.SetName("mdsync")
 	flaggy.SetDescription("A simple markdown renderer with live reload.")
-	flaggy.DefaultParser.AdditionalHelpPrepend = "Extended help can be found on github: https://github.com/rverst/markdownsync"
+	flaggy.DefaultParser.AdditionalHelpPrepend = "Extended help can be found on github: https://github.com/rverst/mdsync"
 	flaggy.SetVersion(version)
 
 	flaggy.AddPositionalValue(&path, "path", 1, false, "The markdown file to render.")
