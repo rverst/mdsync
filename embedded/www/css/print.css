@@ -10,8 +10,7 @@ h1 {
     break-before: recto;
 }
 
-h1:first-of-type,
-section > h1:first-child {
+h1:first-of-type, section > h1:first-child {
     break-before: avoid;
 }
 
@@ -35,6 +34,13 @@ pre {
   page-break-inside: avoid;
   background-color: #808080;
 }
+
 .switch {
   visibility: hidden;
 }
+
+.markdown-body {
+  color: var(--color-print-fg) !important;
+  background-color: var(--color-print-bg) !important;
+}
+

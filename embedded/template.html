@@ -7,10 +7,10 @@
   <link rel="alternate icon" href="favicon.ico">
   <title>{{ .Title }}</title>
     {{ if not .Raw }}
-        <link rel="stylesheet" href="/css/gfm.css" media="all">
-        <link rel="stylesheet" href="/css/print.css" media="print">
         <link rel="stylesheet" href="/css/font.css" media="all">
+        <link rel="stylesheet" href="/css/colors.css" media="all">
         <link rel="stylesheet" href="/css/style.css" media="all">
+        <link rel="stylesheet" href="/css/print.css" media="print">
     {{ end }}
     {{ if .CustomCss }}
       <link rel="stylesheet" href="{{- .CustomCss -}}" media="all">
