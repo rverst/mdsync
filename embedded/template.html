@@ -34,11 +34,20 @@
         <script>
         'use strict';
         const init = () => {
-            document.querySelectorAll('pre').forEach((block) => {
-                if (!(block.parentElement.classList.contains('highlight-plain')
-                    || block.parentElement.classList.contains('highlight-none')
-                    || (block.parentElement.classList.contains('highlight-text')))) {
-                    hljs.highlightBlock(block);
+	    let re = /highlight-(\w+)/;
+
+            document.querySelectorAll('div.highlight').forEach((block) => {
+                if (!(block.classList.contains('highlight-plain')
+                    || block.classList.contains('highlight-none')
+                    || (block.classList.contains('highlight-text')))) {
+
+		    block.classList.forEach((c) => {
+			if (c.match(re)) {
+			   block.classList.add(c.replace(re, "language-$1"));
+			}
+		    })
+
+                    hljs.highlightElement(block);
                 }
             });
         }
