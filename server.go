@@ -13,6 +13,31 @@ import (
   "strings"
 )
 
+var mimeTypes  = map[string]string {
+  "js": "application/javascript; charset=utf-8",
+  "css": "text/css; charset-utf-8",
+  "ttf": "application/x-font-truetype",
+  "ico": "image/x-icon",
+  "png": "image/png",
+  "jpg": "image/jpg",
+  "svg": "image/svg+xml",
+  "jpeg": "image/jpeg",
+  "woff": "application/font-woff",
+  "woff2": "application/font-woff2",
+}
+
+func getMimeType(r *http.Request) string {
+  ext := path.Ext(r.URL.Path)
+  if strings.HasPrefix(ext, ".") {
+    ext = ext[1:]
+  }
+  t, ok := mimeTypes[ext]
+  if ok {
+    return t
+  }
+  return ""
+}
+
 func handleRequest(w http.ResponseWriter, r *http.Request) {
 
   if r.URL.Path == "/robots.txt" {
@@ -34,14 +59,12 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
   }
 
   if r.URL.Path == jsFile {
-    w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
-    serveFile(jsFile, w)
+    serveFile(jsFile, w, r)
     return
   }
 
   if r.URL.Path == cssFile {
-    w.Header().Set("Content-Type", "text/css; charset=utf-8")
-    serveFile(cssFile, w)
+    serveFile(cssFile, w, r)
     return
   }
 
@@ -77,21 +100,11 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
   }
   f := loadAsset(p)
   if f != "" {
-    serveFile(f, w)
+    serveFile(f, w, r)
     return
   }
 
   w.WriteHeader(http.StatusNotFound)
-}
-
-func serveFile(file string, w http.ResponseWriter) bool {
-  data, err := ioutil.ReadFile(file)
-  if err != nil {
-    w.WriteHeader(http.StatusInternalServerError)
-    return true
-  }
-  _, _ = w.Write(data)
-  return false
 }
 
 func handleAssetRequest(w http.ResponseWriter, r *http.Request) {
@@ -100,25 +113,7 @@ func handleAssetRequest(w http.ResponseWriter, r *http.Request) {
   key = strings.Replace(key, ".", "_", -1)
   key = key[1:]
 
-  ct := ""
-  switch path.Ext(r.URL.Path) {
-  case ".css":
-    ct = "text/css; charset=utf-8"
-  case ".ico":
-    ct = "image/x-icon"
-  case ".png":
-    ct = "image/png"
-  case ".svg":
-    ct = "image/svg+xml"
-  case ".js":
-    ct = "application/javascript; charset=utf-8"
-  case ".ttf":
-    ct = "application/x-font-truetype"
-  case ".woff":
-    ct = "application/font-woff"
-  case ".woff2":
-    ct = "application/font-woff2"
-  }
+  ct := getMimeType(r)
 
   // []assets from embedded.go, if you get an 'unresolved reference' error,
   // run `go generate`
@@ -135,7 +130,9 @@ func handleAssetRequest(w http.ResponseWriter, r *http.Request) {
     return
   }
 
-  w.Header().Set("Content-Type", ct)
+  if ct != "" {
+    w.Header().Set("Content-Type", ct)
+  }
   _, _ = w.Write(dec)
 }
 
@@ -166,4 +163,18 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) error {
     }
   }
   return nil
+}
+
+func serveFile(file string, w http.ResponseWriter, r *http.Request) bool {
+  data, err := ioutil.ReadFile(file)
+  if err != nil {
+    w.WriteHeader(http.StatusInternalServerError)
+    return true
+  }
+  ct := getMimeType(r)
+  if ct != "" {
+    w.Header().Set("Content-Type", ct)
+  }
+  _, _ = w.Write(data)
+  return false
 }
