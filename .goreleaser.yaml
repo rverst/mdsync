@@ -8,6 +8,8 @@ builds:
     goarch:
       - amd64
       - arm64
+    hooks:
+      pre: go generate
 nfpms:
   - id: dev.rverst.mdync
     maintainer: Robert Verst <info@rverst.dev>
