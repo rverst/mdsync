@@ -30,11 +30,12 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-      -
-        name: Tests
-        run: |
-          go mod tidy
-          go test -v ./...
+      # -
+      #   name: Tests
+      #   run: |
+      #     go mod tidy
+      #     go mod vendor
+      #     go test -v ./...
       -
         name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
@@ -43,4 +44,4 @@ jobs:
           version: latest
           args: release --rm-dist
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
