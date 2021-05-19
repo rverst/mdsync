@@ -10,11 +10,11 @@ builds:
       - arm64
 nfpms:
   - id: dev.rverst.mdync
-  - maintainer: Robert Verst <info@rverst.dev>
-  - description: Markdown html renderer with auto reload.
-  - homepage: https://github.com/rverst/mdsync
-  - license: MIT
-  - formats:
+    maintainer: Robert Verst <info@rverst.dev>
+    description: Markdown html renderer with auto reload.
+    homepage: https://github.com/rverst/mdsync
+    license: MIT
+    formats:
     - deb
     - rpm
     - apk
