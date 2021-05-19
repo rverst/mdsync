@@ -10,6 +10,10 @@ builds:
       - arm64
     hooks:
       pre: go generate
+archives:
+  - format_overrides:
+    - goos: windows
+      format: zip
 nfpms:
   - id: dev.rverst.mdync
     maintainer: Robert Verst <info@rverst.dev>
