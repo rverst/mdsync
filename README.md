@@ -5,10 +5,11 @@ It renders Markdown to HTML and reloads the browser when changes are made.
 Batteries included:
   - Embedded fonts ([Iosevka](https://github.com/be5invis/Iosevka))
   - Embedded style (gruvbox like; dark/light)
+  - Embedded [highlight.js](https://highlightjs.org/)
 
 ![image alt <](./docs/dark_light.png)
 
-CSS and scripts for styling and code-highlighting can be extended or replaced. 
+CSS and scripts for styling and code-highlighting can be extended or replaced.
 
 ## Installation
 
