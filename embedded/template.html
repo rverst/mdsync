@@ -66,7 +66,7 @@
         }
 
         document.addEventListener("DOMContentLoaded", init);
-        console.info('mdsync v{{ .AppVersion }}');
+        console.info('mdsync {{ .AppVersion }}');
         let isDark = localStorage.getItem('theme') === 'dark';
         setTheme(isDark ? 'dark' : 'light');
         document.getElementById('slider').checked = !isDark;

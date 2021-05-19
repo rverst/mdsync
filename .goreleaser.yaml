@@ -1,0 +1,19 @@
+project_name: mdsync
+builds:
+  - env: [CGO_ENABLED=0]
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - arm64
+nfpms:
+  - maintainer: Robert Verst <robert@verst.eu>
+  - description: Markdown html renderer with auto reload.
+  - homepage: https://github.com/rverst/mdsync
+  - license: MIT
+  - formats:
+    - deb
+    - rpm
+    - apk
