@@ -11,7 +11,8 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"path/filepath"
+  "path"
+  "path/filepath"
 	"runtime"
 	"strings"
 	"sync"
@@ -105,7 +106,7 @@ func main() {
 
 	go watchFileSystem()
 	url := fmt.Sprintf("http://localhost:%d", port)
-	fmt.Printf("listening at: %s\n", url)
+	fmt.Printf("serving '%s' at: %s\n", path.Base(mdFile),  url)
 	http.HandleFunc("/css/", handleAssetRequest)
 	http.HandleFunc("/font/", handleAssetRequest)
 	http.HandleFunc("/script/", handleAssetRequest)

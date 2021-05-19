@@ -7,7 +7,7 @@ Batteries included:
   - Embedded style (gruvbox like; dark/light)
   - Embedded [highlight.js](https://highlightjs.org/)
 
-![image alt <](./docs/dark_light.png)
+![image alt <>](./docs/dark_light.png)
 
 CSS and scripts for styling and code-highlighting can be extended or replaced.
 
