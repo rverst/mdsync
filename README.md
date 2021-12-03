@@ -20,7 +20,7 @@ CSS and scripts for styling and code-highlighting can be extended or replaced.
 ## Usage
 
 ```shell
-> mdsync examlpe.md
+> mdsync example.md
 ```
 This opens the default browser on `http://localhost:5000` to display the rendered output.
 
@@ -36,7 +36,7 @@ This opens the default browser on `http://localhost:5000` to display the rendere
     -h --help         Displays this help.
     -c --css          A custom css path to style the output.
     -s --script       A custom script path to manipulate the output.
-    -p --port         The port to server (default: 5000).
+    -p --port         The port the server will listen on (default: 5000).
        --no-browser   Prevents the browser from being opened.
        --raw          No embedded scripts and styles, custom files will
                       work though.
