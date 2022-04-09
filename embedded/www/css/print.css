@@ -5,7 +5,7 @@
 }
 
 article {
-    padding: 15mm 5mm 15mm 20mm!important;
+    padding: 0 5mm 15mm 20mm!important;
     color: var(--color-print-fg) !important;
 }
 
