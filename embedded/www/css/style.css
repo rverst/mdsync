@@ -10,8 +10,8 @@ html, body {
   overflow: hidden;
   margin: 40px auto 0;
   font-family: "Iosevka Etoile Web", sans-serif;
-  font-size: 16px;
-  line-height: 1.6;
+  font-size: 12px;
+  line-height: 1.4;
   word-wrap: break-word;
   max-width: 738px;
   color: var(--color-fg);
@@ -162,6 +162,13 @@ html, body {
 
 .markdown-body ul, .markdown-body ol {
   padding-left: 2em;
+}
+
+/* remove bullets from unordered lists that have an input element as first child */
+.li-checkbox-no-bullet {
+    list-style-type: none;
+    padding: 0;
+    margin: 0 0 0 -2em;
 }
 
 .markdown-body ul.no-list, .markdown-body ol.no-list {

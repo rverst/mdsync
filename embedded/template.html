@@ -34,20 +34,28 @@
         <script>
         'use strict';
         const init = () => {
-	    let re = /highlight-(\w+)/;
+	        let re = /highlight-(\w+)/;
 
             document.querySelectorAll('div.highlight').forEach((block) => {
                 if (!(block.classList.contains('highlight-plain')
                     || block.classList.contains('highlight-none')
                     || (block.classList.contains('highlight-text')))) {
 
-		    block.classList.forEach((c) => {
-			if (c.match(re)) {
-			   block.classList.add(c.replace(re, "language-$1"));
-			}
-		    })
-
+                    block.classList.forEach((c) => {
+			        if (c.match(re)) {
+                        block.classList.add(c.replace(re, 'language-$1'));
+                    }})
                     hljs.highlightElement(block);
+                    }
+            });
+
+            document.querySelectorAll('input').forEach((el) => {
+                if(el.parentElement.nodeName === 'LI' && el.parentElement.parentElement.nodeName === 'UL') {
+                    el.parentElement.classList.add('li-checkbox-no-bullet')
+                }
+
+                if (el.getAttribute('type') === 'checkbox') {
+                    el.removeAttribute('disabled')
                 }
             });
         }

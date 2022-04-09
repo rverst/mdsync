@@ -1,5 +1,9 @@
 /* Page breaks for printing */
 
+body {
+  padding-left: 2cm !important;
+}
+
 hr {
     break-after: page;
     height: 0.1mm;
