@@ -1,7 +1,22 @@
 /* Page breaks for printing */
 
-body {
-  padding: 1cm 1cm 1cm 2cm!important;
+* {
+    background-color: var(--color-print-bg) !important;
+}
+
+@page
+{
+    size: auto;
+}
+
+body
+{
+    margin: 0;
+}
+
+article {
+    margin: 15mm 5mm 15mm 15mm!important;
+    color: var(--color-print-fg) !important;
 }
 
 hr {
@@ -34,6 +49,10 @@ blockquote {
    page-break-inside: avoid;
 }
 
+ul {
+    page-break-inside: avoid;
+}
+
 pre {
   page-break-inside: avoid;
   background-color: #808080;
@@ -42,9 +61,3 @@ pre {
 .switch {
   visibility: hidden;
 }
-
-.markdown-body {
-  color: var(--color-print-fg) !important;
-  background-color: var(--color-print-bg) !important;
-}
-

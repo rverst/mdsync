@@ -1,6 +1,6 @@
 :root {
-  --color-print-bg: #ffffff
-  --color-print-fg: #303030
+  --color-print-bg: #ffffff;
+  --color-print-fg: #303030;
 }
 
 .theme-light {
