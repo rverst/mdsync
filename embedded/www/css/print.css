@@ -4,18 +4,8 @@
     background-color: var(--color-print-bg) !important;
 }
 
-@page
-{
-    size: auto;
-}
-
-body
-{
-    margin: 0;
-}
-
 article {
-    margin: 15mm 5mm 15mm 15mm!important;
+    padding: 15mm 5mm 15mm 20mm!important;
     color: var(--color-print-fg) !important;
 }
 

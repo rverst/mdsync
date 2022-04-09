@@ -37,7 +37,7 @@ html, body {
   display: block;
   padding-right: 6px;
   padding-left: 30px;
-  margin-left: -30px
+  margin-left: -50px
 }
 
 .markdown-body .anchor:focus {
@@ -102,7 +102,7 @@ html, body {
 .markdown-body h1:hover .anchor, .markdown-body h2:hover .anchor, .markdown-body h3:hover .anchor, .markdown-body h4:hover .anchor, .markdown-body h5:hover .anchor, .markdown-body h6:hover .anchor {
   height: 1em;
   padding-left: 8px;
-  margin-left: -30px;
+  margin-left: -50px;
   line-height: 1;
   text-decoration: none
 }
