@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/fsnotify/fsnotify"
 	"github.com/gorilla/websocket"
 	"github.com/integrii/flaggy"
 	"html/template"
@@ -11,8 +10,8 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-  "path"
-  "path/filepath"
+	"path"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"sync"
@@ -45,13 +44,14 @@ type Content struct {
 
 var (
 	version   = "dev"
-  commit    = "none"
-  date      = "unknown"
-  builtBy   = "unknown"
+	commit    = "none"
+	date      = "unknown"
+	builtBy   = "unknown"
 	port      = uint16(5000)
 	noBrowser = false
 	raw       = false
 
+	close         chan bool
 	mdFile        string
 	cssFile       string
 	jsFile        string
@@ -104,9 +104,13 @@ func init() {
 
 func main() {
 
-	go watchFileSystem()
+	close = make(chan bool)
+	defer func() {
+		close <- true
+	}()
+	go watchFile()
 	url := fmt.Sprintf("http://localhost:%d", port)
-	fmt.Printf("serving '%s' at: %s\n", path.Base(mdFile),  url)
+	fmt.Printf("serving '%s' at: %s\n", path.Base(mdFile), url)
 	http.HandleFunc("/css/", handleAssetRequest)
 	http.HandleFunc("/font/", handleAssetRequest)
 	http.HandleFunc("/script/", handleAssetRequest)
@@ -156,13 +160,13 @@ func loadFile(path string) (string, error) {
 }
 
 func loadAsset(path string) string {
-  if path == "" {
-    return ""
-  }
+	if path == "" {
+		return ""
+	}
 
 	f, err := os.Stat(path)
 	if os.IsNotExist(err) || f.IsDir() {
-	  fmt.Printf("file not found: %s\n", path)
+		fmt.Printf("file not found: %s\n", path)
 		return ""
 	}
 	fn, err := filepath.Abs(path)
@@ -189,60 +193,75 @@ func openBrowser(url string) {
 	}
 }
 
-func watchFileSystem() {
-	watcher, err := fsnotify.NewWatcher()
-	if err != nil {
-		fmt.Printf("error: %v\n", err)
-		return
+func watchFile() {
+	t := time.NewTicker(time.Millisecond * 100)
+	ec := 0
+
+	type lastChange struct {
+		file string
+		lc   time.Time
 	}
-	defer watcher.Close()
 
-	lastEvent := time.Now()
+	lastChanges := make([]lastChange, 1)
+	lastChanges[0] = lastChange{file: mdFile}
 
-	done := make(chan bool)
-	go func() {
-		for {
-			select {
-			case event, ok := <-watcher.Events:
-				if !ok {
-					return
-				}
-				_, f := filepath.Split(event.Name)
-				if time.Since(lastEvent).Nanoseconds() > (50*time.Millisecond).Nanoseconds() &&
-					!strings.HasPrefix(f, ".") && !strings.HasSuffix(f, "~") {
-					lastEvent = time.Now()
-					fmt.Printf("[%s] reloading after: %s | %s\n", lastEvent.Format("15:04:05.000"), strings.ToLower(event.Op.String()), f)
-					wsConnections.Lock()
-					for c := range wsConnections.cs {
-						_ = wsConnections.cs[c].WriteJSON(Payload{Message: "reload"})
-					}
-					wsConnections.Unlock()
-				}
-
-			case err, ok := <-watcher.Errors:
-				if !ok {
-					return
-				}
-				fmt.Printf("error: %v\n", err)
-			}
-		}
-	}()
-
-	err = watcher.Add(mdFile)
-	if err != nil {
-		fmt.Printf("error adding watcher: %v", err)
-	}
 	if cssFile != "" {
-		err := watcher.Add(cssFile)
-		if err != nil {
-			fmt.Printf("error adding watcher: %v", err)
-		}
+		lastChanges = append(lastChanges, lastChange{file: cssFile})
 	}
 	if jsFile != "" {
-		err := watcher.Add(jsFile)
+		lastChanges = append(lastChanges, lastChange{file: jsFile})
+	}
+
+	for i := range lastChanges {
+		lc, err := getLastChange(lastChanges[i].file)
 		if err != nil {
-			fmt.Printf("error adding watcher: %v", err)
+			log.Fatalf("watcher - cannot get last change for: %s - %v", lastChanges[i].file, err)
+		}
+		lastChanges[i].lc = lc
+	}
+
+	for {
+		select {
+		case <-t.C:
+			reload := false
+			for i := range lastChanges {
+				file := lastChanges[i].file
+				lc, err := getLastChange(file)
+				if err != nil {
+					ec++
+					if ec > 15 {
+						log.Fatalf("watcher - cannot get last change for: %s - %v", file, err)
+					}
+					log.Printf("watcher - cannot get last change (%d): %s - %v", ec, file, err)
+					continue
+				}
+				if lc.After(lastChanges[i].lc) {
+					lastChanges[i].lc = lc
+					fmt.Printf("[%s] reloading: %s\n", lc.Format("15:04:05.000"), file)
+					reload = true
+				}
+			}
+
+			if reload {
+				wsConnections.Lock()
+				for i := range wsConnections.cs {
+					err := wsConnections.cs[i].WriteJSON(Payload{Message: "reload"})
+					if err != nil {
+						log.Printf("error writing webSocket: %v", err)
+					}
+				}
+				wsConnections.Unlock()
+			}
+		case <-close:
+			return
 		}
 	}
-	<-done
+}
+
+func getLastChange(file string) (time.Time, error) {
+	fi, err := os.Stat(file)
+	if err != nil {
+		return time.Time{}, err
+	}
+	return fi.ModTime(), nil
 }
