@@ -1,7 +1,7 @@
 /* Page breaks for printing */
 
 body {
-  padding-left: 2cm !important;
+  padding: 1cm 1cm 1cm 2cm!important;
 }
 
 hr {
